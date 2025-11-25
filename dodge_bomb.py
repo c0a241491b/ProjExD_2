@@ -1,6 +1,7 @@
 import os
-import sys
-import pygame as pg
+import random
+import sys  # ここまでが標準ライブラリ
+import pygame as pg  # サードパーティのやつ
 
 
 WIDTH, HEIGHT = 1100, 650
@@ -20,6 +21,15 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
+    
+    bb_img = pg.Surface((20,20))  # 空、見えないサーフェイス
+    pg.draw.circle(bb_img,(255,0,0),(10,10),10)  # スクリーンに映るのではなく、描画した変数があるだけ。
+    bb_img.set_colorkey((0,0,0))
+    bb_rct = bb_img.get_rect()  # 爆弾の位置を決める(rct)
+    bb_rct.centerx = random.randint(0,WIDTH)  # 爆弾横移動
+    bb_rct.centery = random.randint(0,HEIGHT)  # 爆弾縦移動
+    vx,vy = +5, +5  # 爆弾の横、縦速度、コンピュータだと右下
+
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -46,6 +56,8 @@ def main():
 
         kk_rct.move_ip(sum_mv)
         screen.blit(kk_img, kk_rct)
+        bb_rct.move_ip(vx,vy)
+        screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
         clock.tick(50)
