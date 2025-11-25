@@ -54,6 +54,13 @@ def gameover(screen: pg.Surface) -> None:
 
 
 def init_bb_imgs() -> tuple[list[pg.Surface],list[int]]:
+    """
+    爆弾の拡大用 Surface のリストと，加速度リストを生成して返す関数。
+    引数：なし
+    戻り値：tuple[list[pg.Surface], list[int]]
+    ・爆弾画像の Surface を，小 → 大 の10段階で格納したリスト
+    ・爆弾の加速度（1〜10）のリスト
+    """
     bb_imgs = []
     for r in range(1,11):
         bb_img = pg.Surface((20*r,20*r))
@@ -85,7 +92,6 @@ def main():
     bb_imgs, bb_accs = init_bb_imgs()  # 関数から読み込み
     bb_img = bb_imgs[min(tmr//500,9)]
     avx = vx * bb_accs[min(tmr//500,9)]
-    bb_rct
     avy = vy * bb_accs[min(tmr//500,9)]
     kk_rct.move_ip(sum_mv)
     #bb_rct = bb_img.get_rect()
