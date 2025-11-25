@@ -28,6 +28,33 @@ def check_bound(a_rct:pg.Rect) -> tuple[bool,bool]:
     return yoko,tate
 
 
+def gameover(screen: pg.Surface) -> None:
+    """
+    引数:こうかとんRect
+    戻り値:画面を5秒間停止させる
+    """
+    black_img = pg.Surface((WIDTH,HEIGHT))
+    pg.draw.rect(black_img,(0,0,0),(0,0,WIDTH,HEIGHT))
+    black_img.set_colorkey((255,255,255))  # 背景を半透明の黒色に
+    black_img.set_alpha(220)
+    black_rct = black_img.get_rect()
+    screen.blit(black_img,black_rct)
+
+    fonto = pg.font.Font(None,80)  # Game Over の文字の設定
+    txt = fonto.render("Game Over",True,(255,255,255))
+    txt_rct = txt.get_rect(center=(WIDTH//2,HEIGHT//2))  # 画面中央に置けるようにrct
+    screen.blit(txt,txt_rct)
+
+    kry_img = pg.transform.rotozoom(pg.image.load("fig/8.png"),0,0.9)
+    kry_rct_l = kry_img.get_rect(center=(WIDTH//2-200,HEIGHT//2))  # 画面中央文字の左にrct
+    screen.blit(kry_img, kry_rct_l)
+    kry_rct_r = kry_img.get_rect(center=(WIDTH//2+200,HEIGHT//2))  # 画面中央文字の右にrct
+    screen.blit(kry_img,kry_rct_r)
+    pg.display.update()
+    return pg.time.wait(5)  # 実装例のtime.sleepが実装できなかったためtime.waitで代用
+
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -35,7 +62,7 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
-    bb_img = pg.Surface((20,20))  # 空、見えないサーフェイス
+    bb_img = pg.Surface((80,80))  # 空、見えないサーフェイス
     pg.draw.circle(bb_img,(255,0,0),(10,10),10)  # スクリーンに映るのではなく、描画した変数があるだけ。
     bb_img.set_colorkey((0,0,0))
     bb_rct = bb_img.get_rect()  # 爆弾の位置を決める(rct)
@@ -51,6 +78,7 @@ def main():
             
         if kk_rct.colliderect(bb_rct):  # kk_rctの中にbb_rct、こうかとんに爆弾が入ってきたら
             print("ゲームオーバー")
+            gameover(screen)
             return
         screen.blit(bg_img, [0, 0]) 
 
