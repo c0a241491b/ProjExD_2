@@ -34,9 +34,8 @@ def gameover(screen: pg.Surface) -> None:
     戻り値:画面を5秒間停止させる
     """
     black_img = pg.Surface((WIDTH,HEIGHT))
-    pg.draw.rect(black_img,(0,0,0),(0,0,WIDTH,HEIGHT))
-    black_img.set_colorkey((255,255,255))  # 背景を半透明の黒色に
-    black_img.set_alpha(220)
+    pg.draw.rect(black_img,(0,0,0),(0,0,WIDTH,HEIGHT))  # 背景を半透明の黒色に
+    black_img.set_alpha(180)
     black_rct = black_img.get_rect()
     screen.blit(black_img,black_rct)
 
@@ -51,8 +50,19 @@ def gameover(screen: pg.Surface) -> None:
     kry_rct_r = kry_img.get_rect(center=(WIDTH//2+200,HEIGHT//2))  # 画面中央文字の右にrct
     screen.blit(kry_img,kry_rct_r)
     pg.display.update()
-    return pg.time.wait(5)  # 実装例のtime.sleepが実装できなかったためtime.waitで代用
+    return pg.time.wait(5000)  # 実装例のtime.sleepが実装できなかったためtime.waitで代用(値はミリ秒)
 
+
+def init_bb_imgs() -> tuple[list[pg.Surface],list[int]]:
+    bb_imgs = []
+    for r in range(1,11):
+        bb_img = pg.Surface((20*r,20*r))
+        pg.draw.circle(bb_img,(255,0,0),(10*r,10*r),10*r)
+        bb_img.set_colorkey((0,0,0))
+        bb_imgs.append(bb_img)
+
+    bb_accs = [a for a in range(1,11)]
+    return bb_imgs, bb_accs
 
 
 def main():
@@ -62,6 +72,7 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
+
     bb_img = pg.Surface((80,80))  # 空、見えないサーフェイス
     pg.draw.circle(bb_img,(255,0,0),(10,10),10)  # スクリーンに映るのではなく、描画した変数があるだけ。
     bb_img.set_colorkey((0,0,0))
@@ -71,6 +82,16 @@ def main():
     vx,vy = +5, +5  # 爆弾の横、縦速度、コンピュータだと右下
     clock = pg.time.Clock()
     tmr = 0
+    bb_imgs, bb_accs = init_bb_imgs()  # 関数から読み込み
+    bb_img = bb_imgs[min(tmr//500,9)]
+    avx = vx * bb_accs[min(tmr//500,9)]
+    bb_rct
+    avy = vy * bb_accs[min(tmr//500,9)]
+    kk_rct.move_ip(sum_mv)
+    #bb_rct = bb_img.get_rect()
+    bb_rct.centerx = random.randint(0,WIDTH)
+    bb_rct.centery = random.randint(0,HEIGHT)
+    bb_rct.width = bb_img.get_rect().width
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -97,8 +118,6 @@ def main():
                 sum_mv[0] += mv[0]  # 横方向の移動
                 sum_mv[1] += mv[1]  # 縦方向の移動
 
-
-        kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True,True):  # もし画面外なら
             kk_rct.move_ip(-sum_mv[0],-sum_mv[1])  # -タプルで、数値を下げなかったことにする
         screen.blit(kk_img, kk_rct)
