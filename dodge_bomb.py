@@ -80,7 +80,7 @@ def main():
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
 
-    bb_img = pg.Surface((80,80))  # 空、見えないサーフェイス
+    bb_img = pg.Surface((20,20))  # 空、見えないサーフェイス
     pg.draw.circle(bb_img,(255,0,0),(10,10),10)  # スクリーンに映るのではなく、描画した変数があるだけ。
     bb_img.set_colorkey((0,0,0))
     bb_rct = bb_img.get_rect()  # 爆弾の位置を決める(rct)
@@ -90,10 +90,6 @@ def main():
     clock = pg.time.Clock()
     tmr = 0
     bb_imgs, bb_accs = init_bb_imgs()  # 関数から読み込み
-    bb_img = bb_imgs[min(tmr//500,9)]
-    avx = vx * bb_accs[min(tmr//500,9)]
-    avy = vy * bb_accs[min(tmr//500,9)]
-    kk_rct.move_ip(sum_mv)
     #bb_rct = bb_img.get_rect()
     bb_rct.centerx = random.randint(0,WIDTH)
     bb_rct.centery = random.randint(0,HEIGHT)
@@ -108,7 +104,6 @@ def main():
             gameover(screen)
             return
         screen.blit(bg_img, [0, 0]) 
-
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         # if key_lst[pg.K_UP]:
@@ -119,20 +114,32 @@ def main():
         #     sum_mv[0] -= 5
         # if key_lst[pg.K_RIGHT]:
         #     sum_mv[0] += 5
+        idx = min(tmr//500,9)  # 爆弾の当たり判定を時間で管理
+        old_center = bb_rct.center
+        bb_img = bb_imgs[idx]
+        bb_rct = bb_img.get_rect()
+        bb_rct.center = old_center  # centerを維持してサイズを更新
+        speed = bb_accs[idx]  # 爆弾の加速
+        avx = vx * speed
+        avy = vy * speed
+        
         for key,mv in DELTA.items():
             if key_lst[key]:
                 sum_mv[0] += mv[0]  # 横方向の移動
                 sum_mv[1] += mv[1]  # 縦方向の移動
-
+        kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True,True):  # もし画面外なら
             kk_rct.move_ip(-sum_mv[0],-sum_mv[1])  # -タプルで、数値を下げなかったことにする
         screen.blit(kk_img, kk_rct)
+
         yoko,tate = check_bound(bb_rct)
         if not yoko:  # 横方向にはみ出ていたら
             vx *= -1
+            avx *= -1
         if not tate:  # 縦方向にはみ出ていたら
             vy *= -1
-        bb_rct.move_ip(vx,vy)
+            avy *= -1
+        bb_rct.move_ip(avx,avy)
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
